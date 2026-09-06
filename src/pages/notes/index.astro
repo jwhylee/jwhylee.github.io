@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const tags = [...new Set(notes.flatMap((n) => n.data.tags))].sort();
+---
+
+<BaseLayout title="Notes" description="Study notes and write-ups.">
+  <h1 class="text-2xl font-semibold tracking-tight">Notes</h1>
+  {
+    tags.length > 0 && (
+      <div class="mt-3 flex flex-wrap gap-3 text-sm text-neutral-500 dark:text-neutral-400">
+        {tags.map((t) => (
+          <a href={`/notes/tags/${t}`} class="hover:underline">
+            #{t}
+          </a>
+        ))}
+      </div>
+    )
+  }
+  <div class="mt-4">
+    {
+      notes.map((n) => (
+        <PostCard
+          href={`/notes/${n.id}`}
+          title={n.data.title}
+          description={n.data.description}
+          date={n.data.date}
+          tags={n.data.tags}
+          lang={n.data.lang}
+        />
+      ))
+    }
+  </div>
+  {notes.length === 0 && <p class="mt-6 text-neutral-500">No notes yet.</p>}
+</BaseLayout>

@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const projects = (await getCollection('projects')).sort(
+  (a, b) => Number(b.data.featured) - Number(a.data.featured) || a.data.order - b.data.order,
+);
+---
+
+<BaseLayout title="Projects" description="Things I've built.">
+  <h1 class="text-2xl font-semibold tracking-tight">Projects</h1>
+  <div class="mt-4">
+    {
+      projects.map((p) => (
+        <PostCard
+          href={`/projects/${p.id}`}
+          title={p.data.title}
+          description={p.data.summary}
+          meta={p.data.period}
+          tags={p.data.stack}
+        />
+      ))
+    }
+  </div>
+  {projects.length === 0 && <p class="mt-6 text-neutral-500">No projects yet.</p>}
+</BaseLayout>

@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+import { SITE } from '../site';
+
+const notes = (await getCollection('notes', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const projects = (await getCollection('projects'))
+  .filter((p) => p.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 3);
+---
+
+<BaseLayout>
+  <section>
+    <h1 class="text-3xl font-semibold tracking-tight">{SITE.name}</h1>
+    <p class="mt-1 text-neutral-500 dark:text-neutral-400">
+      Applied Information Engineering · Yonsei University
+    </p>
+
+    <div class="prose prose-neutral dark:prose-invert mt-8 max-w-none">
+      <p>
+        I'm a sophomore at Yonsei University studying Applied Information Engineering, with a
+        double major in Artificial Intelligence. I care about the engineering side of AI systems —
+        how they break, how they hold up, and what it takes to run them in the real world.
+      </p>
+      <p>
+        This site is where I keep two things: <a href="/projects">projects</a> I've built, and
+        <a href="/notes">notes</a> from whatever I'm currently working through.
+      </p>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-4 text-sm">
+      <a class="underline underline-offset-4" href={SITE.github}>GitHub</a>
+      <a class="underline underline-offset-4" href={`mailto:${SITE.email}`}>Email</a>
+    </div>
+  </section>
+
+  {
+    projects.length > 0 && (
+      <section class="mt-16">
+        <div class="flex items-baseline">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-neutral-500 dark:text-neutral-400">
+            Selected projects
+          </h2>
+          <a href="/projects" class="ml-auto text-sm text-neutral-500 hover:underline dark:text-neutral-400">
+            All →
+          </a>
+        </div>
+        <div class="mt-2">
+          {projects.map((p) => (
+            <PostCard
+              href={`/projects/${p.id}`}
+              title={p.data.title}
+              description={p.data.summary}
+              meta={p.data.period}
+              tags={p.data.stack}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    notes.length > 0 && (
+      <section class="mt-16">
+        <div class="flex items-baseline">
+          <h2 class="text-sm font-semibold tracking-wide uppercase text-neutral-500 dark:text-neutral-400">
+            Recent notes
+          </h2>
+          <a href="/notes" class="ml-auto text-sm text-neutral-500 hover:underline dark:text-neutral-400">
+            All →
+          </a>
+        </div>
+        <div class="mt-2">
+          {notes.map((n) => (
+            <PostCard
+              href={`/notes/${n.id}`}
+              title={n.data.title}
+              description={n.data.description}
+              date={n.data.date}
+              tags={n.data.tags}
+              lang={n.data.lang}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

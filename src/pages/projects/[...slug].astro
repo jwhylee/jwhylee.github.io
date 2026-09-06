@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const projects = await getCollection('projects');
+  return projects.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+};
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+
+<BaseLayout title={d.title} description={d.summary}>
+  <article>
+    <a href="/projects" class="text-sm text-neutral-500 hover:underline dark:text-neutral-400"
+      >← Projects</a
+    >
+    <h1 class="mt-3 text-2xl font-semibold tracking-tight">{d.title}</h1>
+    <p class="mt-2 text-neutral-600 dark:text-neutral-400">{d.summary}</p>
+
+    <dl class="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-y border-neutral-200 py-4 text-sm dark:border-neutral-800">
+      <dt class="text-neutral-500 dark:text-neutral-400">Period</dt>
+      <dd>{d.period}</dd>
+      <dt class="text-neutral-500 dark:text-neutral-400">Role</dt>
+      <dd>{d.role}</dd>
+      {d.stack.length > 0 && <dt class="text-neutral-500 dark:text-neutral-400">Stack</dt>}
+      {d.stack.length > 0 && <dd>{d.stack.join(' · ')}</dd>}
+      {(d.repo || d.demo) && <dt class="text-neutral-500 dark:text-neutral-400">Links</dt>}
+      {
+        (d.repo || d.demo) && (
+          <dd class="flex gap-4">
+            {d.repo && (
+              <a class="underline underline-offset-4" href={d.repo}>
+                Repo
+              </a>
+            )}
+            {d.demo && (
+              <a class="underline underline-offset-4" href={d.demo}>
+                Demo
+              </a>
+            )}
+          </dd>
+        )
+      }
+    </dl>
+
+    <div class="prose prose-neutral dark:prose-invert mt-8 max-w-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

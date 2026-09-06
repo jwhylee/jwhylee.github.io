@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Apple SD Gothic Neo",
+    "Pretendard", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-neutral-900 antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-neutral-950 text-neutral-100;
+  }
+}
+
+/* --- markdown / prose tweaks --- */
+
+/* typography 플러그인이 인라인 코드에 붙이는 백틱 제거 */
+.prose code::before,
+.prose code::after {
+  content: none;
+}
+
+.prose :not(pre) > code {
+  @apply rounded bg-neutral-100 px-1.5 py-0.5 text-[0.875em] font-medium;
+}
+
+@media (prefers-color-scheme: dark) {
+  .prose :not(pre) > code {
+    @apply bg-neutral-800;
+  }
+}
+
+/* Shiki dual theme: 다크 모드에서 코드블록 색 전환 */
+@media (prefers-color-scheme: dark) {
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
+}

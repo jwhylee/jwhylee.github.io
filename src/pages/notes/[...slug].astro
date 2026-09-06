@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+
+interface Props {
+  entry: CollectionEntry<'notes'>;
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const notes = await getCollection('notes', ({ data }) => !data.draft);
+  return notes.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+};
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const d = entry.data;
+const fmt = (date: Date) =>
+  date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+<BaseLayout title={d.title} description={d.description}>
+  <article>
+    <a href="/notes" class="text-sm text-neutral-500 hover:underline dark:text-neutral-400"
+      >← Notes</a
+    >
+    <h1 class="mt-3 text-2xl font-semibold tracking-tight">{d.title}</h1>
+    <div class="mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400">
+      <time datetime={d.date.toISOString()}>{fmt(d.date)}</time>
+      {d.updated && <span>· updated {fmt(d.updated)}</span>}
+      {d.series && <span>· {d.series}</span>}
+      {
+        d.tags.map((t) => (
+          <a href={`/notes/tags/${t}`} class="hover:underline">
+            #{t}
+          </a>
+        ))
+      }
+    </div>
+
+    {
+      toc.length > 2 && (
+        <nav class="mt-6 rounded-lg border border-neutral-200 p-4 text-sm dark:border-neutral-800">
+          <p class="font-medium">Contents</p>
+          <ul class="mt-2 space-y-1">
+            {toc.map((h) => (
+              <li class={h.depth === 3 ? 'ml-4' : ''}>
+                <a href={`#${h.slug}`} class="text-neutral-600 hover:underline dark:text-neutral-400">
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    <div class="prose prose-neutral dark:prose-invert mt-8 max-w-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+interface Props {
+  href: string;
+  title: string;
+  description: string;
+  date?: Date;
+  tags?: string[];
+  lang?: 'en' | 'ko';
+  meta?: string;
+}
+const { href, title, description, date, tags = [], lang, meta } = Astro.props;
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+---
+
+<article class="group border-b border-neutral-200 py-6 last:border-0 dark:border-neutral-800">
+  <a href={href} class="block">
+    <div class="flex items-baseline gap-3">
+      <h2 class="font-medium group-hover:underline">{title}</h2>
+      {
+        lang === 'ko' && (
+          <span class="rounded border border-neutral-300 px-1.5 py-0.5 text-[10px] font-medium tracking-wide text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+            KO
+          </span>
+        )
+      }
+      {
+        (date || meta) && (
+          <span class="ml-auto shrink-0 text-xs text-neutral-500 dark:text-neutral-400">
+            {meta ?? (date && fmt(date))}
+          </span>
+        )
+      }
+    </div>
+    <p class="mt-1.5 text-sm text-neutral-600 dark:text-neutral-400">{description}</p>
+    {
+      tags.length > 0 && (
+        <div class="mt-2 flex flex-wrap gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+          {tags.map((t) => (
+            <span>#{t}</span>
+          ))}
+        </div>
+      )
+    }
+  </a>
+</article>
